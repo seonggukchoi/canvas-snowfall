@@ -95,7 +95,7 @@ function dropSnows() {
     snow.x = generateSnowX(snow);
     snow.y = generateSnowY(snow);
 
-    if (snow.y > (snowfallCanvasHeight + (snow.radius / 2))) {
+    if (snow.y > snowfallCanvasHeight + snow.radius / 2) {
       snow.x = getSnowInitialX(snow.radius);
       snow.y = getSnowInitialY(snow.radius);
     }
@@ -103,11 +103,14 @@ function dropSnows() {
 }
 
 function getSnowInitialX(radius) {
-  return getRandomInteger(0 + (radius / 2), snowfallCanvasWidth - (radius / 2));
+  return getRandomInteger(0 + radius / 2, snowfallCanvasWidth - radius / 2);
 }
 
 function getSnowInitialY(radius) {
-  return getRandomInteger(-(snowfallCanvasHeight / 2) + (radius / 2), 0 - (radius / 2));
+  return getRandomInteger(
+    -(snowfallCanvasHeight / 2) + radius / 2,
+    0 - radius / 2
+  );
 }
 
 function generateSnowX(snow) {
