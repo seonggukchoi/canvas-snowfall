@@ -1,3 +1,15 @@
+class Snow {
+  constructor(snowfallCanvasFps) {
+    const radius = getRandomInteger(2, 4);
+
+    this.radius = radius;
+    this.frequencyX = getRandomInteger(5, 10);
+    this.speedY = getRandomInteger(100, 200) / snowfallCanvasFps;
+    this.x = getSnowInitialX(radius);
+    this.y = getSnowInitialY(radius);
+  }
+}
+
 /* **** Canvas Manager ***** */
 let snowfallCanvasWidth = null;
 let snowfallCanvasHeight = null;
@@ -73,21 +85,11 @@ function setSnows() {
 
   for (let i = 0; i < changeAmount; i++) {
     if (destinationCount > currentCount) {
-      snows.push(getSnow());
+      snows.push(new Snow(snowfallCanvasFps));
     } else if (destinationCount < currentCount) {
       snows.pop();
     }
   }
-}
-
-function getSnow() {
-  const radius = getRandomInteger(2, 4);
-  const frequencyX = getRandomInteger(5, 10);
-  const speedY = getRandomInteger(100, 200) / snowfallCanvasFps;
-  const x = getSnowInitialX(radius);
-  const y = getSnowInitialY(radius);
-
-  return { x, y, radius, frequencyX, speedY };
 }
 
 function dropSnows() {
