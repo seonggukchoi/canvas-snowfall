@@ -1,15 +1,3 @@
-class Snow {
-  constructor(snowfallCanvasFps) {
-    const radius = getRandomInteger(2, 4);
-
-    this.radius = radius;
-    this.frequencyX = getRandomInteger(5, 10);
-    this.speedY = getRandomInteger(100, 200) / snowfallCanvasFps;
-    this.x = getSnowInitialX(radius);
-    this.y = getSnowInitialY(radius);
-  }
-}
-
 /* **** Canvas Manager ***** */
 let snowfallCanvasWidth = null;
 let snowfallCanvasHeight = null;
@@ -38,22 +26,8 @@ function drawSnowfallCanvas() {
   snowfallContext.clearRect(0, 0, snowfallCanvasWidth, snowfallCanvasHeight);
   snowfallContext.fillStyle = "#fff";
 
-  drawSnows();
-  dropSnows();
-}
-
-function drawSnows() {
-  for (const snow of snows) {
-    const x = snow.x;
-    const y = snow.y;
-    const radius = snow.radius;
-    const startAngle = 0;
-    const endAngle = 2 * Math.PI;
-
-    snowfallContext.beginPath();
-    snowfallContext.arc(x, y, radius, startAngle, endAngle);
-    snowfallContext.fill();
-  }
+  snowManager.drawSnows();
+  snowManager.dropSnows();
 }
 
 function setCanvasSize() {
@@ -66,43 +40,74 @@ function setCanvasSize() {
 
 function setResize() {
   setCanvasSize();
-  setSnows();
+  snowManager.initialize();
 }
 
 function snowfallCanvasMain() {
   initSnowfallCanvas();
-  setSnows();
+  snowManager.initialize();
 }
 /* **** Canvas Manager ***** */
 
 /* **** Snow Manager ***** */
-let snows = [];
+class Snow {
+  constructor(snowfallCanvasFps) {
+    const radius = getRandomInteger(2, 4);
 
-function setSnows() {
-  const destinationCount = Math.floor(snowfallCanvasWidth / 10);
-  const currentCount = snows.length;
-  const changeAmount = Math.abs(destinationCount - currentCount);
+    this.radius = radius;
+    this.frequencyX = getRandomInteger(5, 10);
+    this.speedY = getRandomInteger(100, 200) / snowfallCanvasFps;
+    this.x = getSnowInitialX(radius);
+    this.y = getSnowInitialY(radius);
+  }
+}
 
-  for (let i = 0; i < changeAmount; i++) {
-    if (destinationCount > currentCount) {
-      snows.push(new Snow(snowfallCanvasFps));
-    } else if (destinationCount < currentCount) {
-      snows.pop();
+class SnowManager {
+  snows = [];
+
+  constructor() {
+    this.initialize();
+  }
+
+  initialize() {
+    const count = Math.floor(snowfallCanvasWidth / 10);
+
+    this.snows = [
+      ...this.snows,
+      ...Array.from({ length: count })
+        .fill(null)
+        .map(() => new Snow(snowfallCanvasFps)),
+    ].slice(0, count);
+  }
+
+  dropSnows() {
+    for (const snow of snowManager.snows) {
+      snow.x = generateSnowX(snow);
+      snow.y = generateSnowY(snow);
+
+      if (snow.y > snowfallCanvasHeight + snow.radius / 2) {
+        snow.x = getSnowInitialX(snow.radius);
+        snow.y = getSnowInitialY(snow.radius);
+      }
+    }
+  }
+
+  drawSnows() {
+    for (const snow of snowManager.snows) {
+      const x = snow.x;
+      const y = snow.y;
+      const radius = snow.radius;
+      const startAngle = 0;
+      const endAngle = 2 * Math.PI;
+
+      snowfallContext.beginPath();
+      snowfallContext.arc(x, y, radius, startAngle, endAngle);
+      snowfallContext.fill();
     }
   }
 }
 
-function dropSnows() {
-  for (const snow of snows) {
-    snow.x = generateSnowX(snow);
-    snow.y = generateSnowY(snow);
-
-    if (snow.y > snowfallCanvasHeight + snow.radius / 2) {
-      snow.x = getSnowInitialX(snow.radius);
-      snow.y = getSnowInitialY(snow.radius);
-    }
-  }
-}
+const snowManager = new SnowManager();
 
 function getSnowInitialX(radius) {
   return getRandomInteger(0 + radius / 2, snowfallCanvasWidth - radius / 2);
